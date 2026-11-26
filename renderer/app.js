@@ -183,7 +183,7 @@ function applyOpacity(v) { document.documentElement.style.setProperty('--alpha',
 $('nextBtn').onclick = () => go('next');
 $('prevBtn').onclick = () => go('prev');
 $('restartBtn').onclick = () => go('first');
-$('stratPicker').onchange = (e) => openStrat(e.target.value);
+$('stratPicker').onchange = (e) => { showAddScreen(false); openStrat(e.target.value); };
 $('modeBtn').onclick = () => window.bridge.switchMode();
 $('collapseBtn').onclick = toggleCollapse;
 $('closeBtn').onclick = () => window.bridge.close();
@@ -193,6 +193,9 @@ $('opacity').oninput = (e) => { applyOpacity(e.target.value); window.bridge.save
 let pickedMap = null;
 function showAddScreen(show, firstTime = !strats.length) {
   document.body.classList.toggle('adding', show);
+  $('addBtn').classList.toggle('active', show);
+  $('addBtn').textContent = show && !firstTime ? '✕ Close' : '+';
+  $('addBtn').title = show ? 'Close the add screen' : 'Add a strat';
   $('welcome').style.display = firstTime ? '' : 'none';
   $('addTitle').textContent = firstTime ? 'Welcome to StratOverlay' : 'Add a strat';
   $('cancelAddBtn').style.display = firstTime ? 'none' : '';

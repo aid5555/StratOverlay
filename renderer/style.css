@@ -131,3 +131,4 @@ body.adding #players, body.adding #meta, body.adding #main, body.adding #notesBo
 .addAlt { font-size: 12px; color: var(--muted); }
 .addAlt button { margin: 4px 4px 0 0; }
 body.overlay #addScreen textarea { cursor: text; }
+#addBtn.active { background: #4dabf7; border-color: #4dabf7; color: #111; font-weight: 700; }
