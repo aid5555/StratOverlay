@@ -1,0 +1,133 @@
+:root {
+  --bg: 21, 23, 28;
+  --alpha: 0.92;
+  --text: #eef0f4;
+  --muted: #9aa1ad;
+  --accent: #f5a524;
+  --chip: #2a2e37;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--text); }
+body { background: transparent; overflow: hidden; }
+body.window { background: rgb(var(--bg)); }
+
+#panel {
+  height: 100%; display: flex; flex-direction: column; gap: 8px; padding: 10px;
+  background: rgba(var(--bg), var(--alpha)); border-radius: 12px; overflow-y: auto;
+}
+body.window #panel { border-radius: 0; background: rgb(var(--bg)); }
+body.window .overlay-only { display: none; }
+
+#bar { display: flex; gap: 6px; align-items: center; }
+#stratPicker { flex: 1; min-width: 0; }
+
+select, button {
+  font: inherit; font-size: 13px; color: var(--text); background: var(--chip);
+  border: 1px solid #3a3f4b; border-radius: 6px; padding: 5px 8px; cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: #1a1a1a; border-color: var(--accent); font-weight: 600; }
+button:disabled { opacity: 0.4; cursor: default; }
+
+#meta { font-size: 12px; color: var(--muted); }
+
+#mapWrap { position: relative; }
+#map { width: 100%; border-radius: 8px; display: block; }
+#noMap { font-size: 12px; color: var(--muted); text-align: center; padding: 14px; border: 1px dashed #3a3f4b; border-radius: 8px; }
+body.hide-map #mapWrap { display: none; }
+
+#loadout { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { font-size: 12px; padding: 3px 8px; border-radius: 99px; background: var(--chip); color: var(--muted); }
+.chip.active { background: var(--accent); color: #1a1a1a; font-weight: 600; }
+
+#stepCard { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 12px; }
+#stepCount { font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+#stepText { font-size: 17px; line-height: 1.35; font-weight: 600; }
+#stepTip { font-size: 13px; color: var(--muted); margin-top: 6px; }
+#stepTip:empty { display: none; }
+#stepTip::before { content: "💡 "; }
+
+#nav { display: flex; gap: 6px; }
+#nav button { flex: 1; padding: 8px; font-size: 14px; }
+
+#notesBox { font-size: 12px; color: var(--muted); }
+#notesBox summary { cursor: pointer; }
+#notesBox ul { padding-left: 18px; margin: 6px 0; }
+#notesBox label { display: flex; gap: 6px; align-items: center; margin: 6px 0; }
+.keys { margin: 6px 0 0; }
+
+/* Bigger text when the window is wide (Window mode on a second screen) */
+@media (min-width: 640px) {
+  #stepText { font-size: 24px; }
+  #panel { padding: 18px; }
+}
+
+/* Dragging is done in app.js (a native drag region would swallow scrolling) */
+body.overlay #panel { cursor: grab; }
+body.overlay.dragging #panel { cursor: grabbing; }
+#panel > *, #main > *, #side > * { flex-shrink: 0; }
+#panel { overscroll-behavior: contain; scrollbar-width: thin; }
+#panel::-webkit-scrollbar { width: 8px; }
+#panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 4px; }
+
+/* Fullscreen mode: map on the left, steps on the right */
+#main { display: flex; flex-direction: column; gap: 8px; }
+#side { display: flex; flex-direction: column; gap: 8px; }
+@media (min-width: 900px) {
+  body.window #main { flex-direction: row; align-items: flex-start; flex: 1; min-height: 0; }
+  body.window #mapWrap { flex: 3; }
+  body.window #map { max-height: calc(100vh - 110px); object-fit: contain; }
+  body.window #side { flex: 2; }
+  body.window #stepText { font-size: 30px; }
+  body.window #stepTip { font-size: 17px; }
+  body.window #nav button { padding: 14px; font-size: 18px; }
+}
+
+/* ---- Colors ---- */
+.chip { border: 1px solid var(--c); color: var(--c); background: transparent; }
+.chip.active { background: var(--c); color: #111; border-color: var(--c); box-shadow: 0 0 8px var(--c); }
+.tw { font-weight: 700; }
+.kw { color: var(--accent); }
+#stepCard { border-left: 4px solid var(--accent); }
+#stepTip { color: #ffe08a; background: rgba(255, 196, 0, 0.12); border: 1px solid rgba(255, 196, 0, 0.35); border-radius: 8px; padding: 6px 8px; }
+#notesBox summary, #settingsBox summary { color: #cfd5df; font-weight: 600; }
+#notes { list-style: none; padding: 0 !important; display: flex; flex-direction: column; gap: 4px; }
+#notes li { color: #e4e7ec; background: rgba(255,255,255,0.04); border-left: 3px solid var(--c); border-radius: 6px; padding: 5px 8px; }
+#settingsBox { font-size: 12px; color: var(--muted); }
+#settingsBox label { display: flex; gap: 6px; align-items: center; margin: 6px 0; }
+
+/* Collapsed overlay: just the bar, the current step and the buttons */
+body.collapsed #meta, body.collapsed #mapWrap, body.collapsed #loadout,
+body.collapsed #notesBox, body.collapsed #settingsBox, body.collapsed #stepTip { display: none; }
+body.collapsed #panel { gap: 6px; padding: 8px; overflow: hidden; }
+body.collapsed #stepCard { padding: 6px 10px; }
+body.collapsed #stepText { font-size: 14px; }
+body.collapsed #nav button { padding: 4px; font-size: 13px; }
+
+/* Player picker for multiplayer strats */
+#players { display: flex; gap: 4px; }
+#players button { flex: 1; padding: 4px; font-size: 12px; }
+#players button.active { background: #4dabf7; border-color: #4dabf7; color: #111; font-weight: 700; }
+body.collapsed #players { display: none !important; }
+
+/* ---- Add a strat / welcome screen ---- */
+#addScreen { display: none; font-size: 13px; color: var(--text); }
+body.adding #addScreen { display: block; }
+body.adding #players, body.adding #meta, body.adding #main, body.adding #notesBox, body.adding #settingsBox { display: none !important; }
+#addScreen h2 { margin: 4px 0 6px; font-size: 18px; color: var(--accent); }
+#addScreen ol { padding-left: 20px; margin: 8px 0; display: flex; flex-direction: column; gap: 10px; }
+#addScreen li button { display: block; margin-top: 6px; }
+#addScreen li b { color: #4dabf7; }
+#stratJson {
+  display: block; width: 100%; height: 110px; margin-top: 6px; resize: vertical;
+  font: 12px ui-monospace, Menlo, Consolas, monospace; color: var(--text);
+  background: rgba(0,0,0,0.3); border: 1px solid #3a3f4b; border-radius: 6px; padding: 6px;
+}
+#mapName { font-size: 12px; color: #51cf66; }
+.addActions { display: flex; gap: 6px; }
+.addActions button { flex: 1; padding: 8px; }
+#addMsg.ok { color: #51cf66; }
+#addMsg.bad { color: #ff6b6b; }
+.addAlt { font-size: 12px; color: var(--muted); }
+.addAlt button { margin: 4px 4px 0 0; }
+body.overlay #addScreen textarea { cursor: text; }

@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output (installers)
+dist/
+out/
+release/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Personal strats are not shipped with the app
+strats/

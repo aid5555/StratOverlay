@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self' file:; img-src 'self' file: data:; style-src 'self' file: 'unsafe-inline'">
+  <title>StratOverlay</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="panel">
+    <header id="bar">
+      <select id="stratPicker" title="Choose a strat"></select>
+      <button id="addBtn" title="Add a strat">+</button>
+      <button id="modeBtn" title="Switch between Overlay and Fullscreen (Alt+O)"></button>
+      <button id="collapseBtn" class="overlay-only" title="Collapse / expand (Alt+C)">▾</button>
+      <button id="closeBtn" title="Quit">✕</button>
+    </header>
+
+    <section id="addScreen">
+      <h2 id="addTitle">Add a strat</h2>
+      <p id="welcome">You don't have any strats yet. Turn any strat guide into a strat file with an AI in a minute:</p>
+      <ol>
+        <li><b>Copy the AI prompt</b> and paste it into Claude, ChatGPT or any other AI. Paste the strat text (from the strat doc) right under it.
+          <button id="copyPromptBtn">📋 Copy AI prompt</button></li>
+        <li><b>Paste the JSON</b> the AI gives back here:
+          <textarea id="stratJson" spellcheck="false" placeholder='{ "formatVersion": 1, "name": ... }'></textarea></li>
+        <li><b>Placement map</b> (optional): a screenshot of the strat's map.
+          <button id="pickMapBtn">🗺️ Choose image</button> <span id="mapName"></span></li>
+      </ol>
+      <div class="addActions">
+        <button id="saveStratBtn" class="primary">Save strat</button>
+        <button id="cancelAddBtn">Cancel</button>
+      </div>
+      <p id="addMsg"></p>
+      <p class="addAlt">Already have a strat file? <button id="importBtn">Import .json file</button> <button id="openFolderBtn">Open strats folder</button></p>
+    </section>
+
+    <div id="players"></div>
+    <div id="meta"></div>
+
+    <div id="main">
+    <div id="mapWrap">
+      <img id="map" alt="Placement map">
+      <div id="noMap">No placement map yet</div>
+    </div>
+
+    <div id="side">
+    <div id="loadout"></div>
+
+    <section id="stepCard">
+      <div id="stepCount"></div>
+      <div id="stepText"></div>
+      <div id="stepTip"></div>
+    </section>
+
+    <nav id="nav">
+      <button id="prevBtn" title="Previous step (Alt+Left)">◀ Prev</button>
+      <button id="nextBtn" class="primary" title="Next step (Alt+Right)">Next ▶</button>
+    </nav>
+
+    <details id="notesBox" open>
+      <summary>Notes</summary>
+      <ul id="notes"></ul>
+    </details>
+
+    <details id="settingsBox">
+      <summary>Settings</summary>
+      <label class="overlay-only">Opacity <input id="opacity" type="range" min="35" max="100" value="92"></label>
+      <label><input id="showMap" type="checkbox" checked> Show map (Alt+M)</label>
+      <button id="restartBtn">Restart strat (Alt+Up)</button>
+      <p class="keys">Alt+→ next · Alt+← back · Alt+H hide · Alt+O overlay / fullscreen · Alt+C collapse · Esc leaves fullscreen<br>(Option instead of Alt on Mac)</p>
+    </details>
+    </div>
+    </div>
+  </div>
+  <script src="prompt.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

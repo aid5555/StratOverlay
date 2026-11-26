@@ -1,0 +1,13 @@
+{
+  "name": "stratoverlay",
+  "version": "0.1.0",
+  "description": "Step-by-step strategy overlay for Roblox Tower Defense Simulator",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "33.2.1"
+  },
+  "private": true
+}
