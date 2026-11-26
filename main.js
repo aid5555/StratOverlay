@@ -9,7 +9,10 @@ let mode = 'overlay'; // 'overlay' (see-through, always on top) or 'window' (ful
 // Strats live in two places: the ones shipped with the app, and the user's own folder.
 // Bundled strats can sit in ./strats or ../strats next to the app (both are optional).
 const bundledStratsDirs = [path.join(__dirname, 'strats'), path.join(__dirname, '..', 'strats')];
-const userStratsDir = () => path.join(app.getPath('userData'), 'strats');
+// Where your own strats are saved: a strats folder next to the app if there is one,
+// otherwise the app's own data folder.
+const appDataStratsDir = () => path.join(app.getPath('userData'), 'strats');
+const userStratsDir = () => bundledStratsDirs.find(d => fs.existsSync(d)) || appDataStratsDir();
 
 function settingsPath() { return path.join(app.getPath('userData'), 'settings.json'); }
 function loadSettings() {
@@ -132,8 +135,8 @@ function readStratsFrom(dir) {
 }
 
 ipcMain.handle('list-strats', () => {
-  fs.mkdirSync(userStratsDir(), { recursive: true });
-  return [...bundledStratsDirs.flatMap(readStratsFrom), ...readStratsFrom(userStratsDir())];
+  const dirs = [...new Set([...bundledStratsDirs, appDataStratsDir()])];
+  return dirs.flatMap(readStratsFrom);
 });
 
 ipcMain.handle('load-strat', (_e, file) => {
