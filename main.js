@@ -229,8 +229,22 @@ ipcMain.on('move-by', (_e, dx, dy) => {
   const [x, y] = win.getPosition();
   win.setPosition(Math.round(x + dx), Math.round(y + dy));
 });
+// When you let go near a screen edge (or corner), the overlay snaps flush against it.
+const SNAP_DISTANCE = 40;
+function snapToEdges() {
+  const b = win.getBounds();
+  const area = screen.getDisplayMatching(b).workArea;
+  let { x, y } = b;
+  if (Math.abs(b.x - area.x) < SNAP_DISTANCE) x = area.x;
+  else if (Math.abs(area.x + area.width - (b.x + b.width)) < SNAP_DISTANCE) x = area.x + area.width - b.width;
+  if (Math.abs(b.y - area.y) < SNAP_DISTANCE) y = area.y;
+  else if (Math.abs(area.y + area.height - (b.y + b.height)) < SNAP_DISTANCE) y = area.y + area.height - b.height;
+  if (x !== b.x || y !== b.y) win.setPosition(x, y);
+}
+
 ipcMain.on('move-done', () => {
   if (!win || mode !== 'overlay') return;
+  snapToEdges();
   const b = win.getBounds();
   const prev = loadSettings().overlayBounds || b;
   saveSettings({ overlayBounds: collapsed ? { ...b, height: prev.height } : b });
