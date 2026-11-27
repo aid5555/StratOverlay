@@ -11,7 +11,20 @@ A small overlay for **Roblox Tower Defense Simulator** that shows your strategy 
 
 StratOverlay only shows information. It never reads or touches the Roblox game.
 
-## Install
+## Download
+
+Get the latest version from the [Releases page](https://github.com/aid5555/StratOverlay/releases/latest):
+
+- **Windows:** `StratOverlay-Setup-x.y.z.exe` (installer) or `StratOverlay-x.y.z-portable.exe` (no install, just run it)
+- **Mac:** `StratOverlay-x.y.z-mac.dmg`. Open it and drag StratOverlay into Applications.
+
+The apps aren't signed with a paid developer certificate, so the first launch shows a warning:
+
+- **Windows:** "Windows protected your PC" → click **More info** → **Run anyway**.
+- **Mac:** if it says the app "is damaged" or "can't be opened", open Terminal and run
+  `xattr -cr /Applications/StratOverlay.app`, then open it again. (Or right-click the app → **Open** → **Open**.)
+
+## Run from source
 
 1. Install **Node.js** (the LTS version) from [nodejs.org](https://nodejs.org).
 2. Download this repo: green **Code** button → **Download ZIP**, then unzip it (or `git clone` it).
@@ -56,7 +69,14 @@ On Mac, Alt is the **Option** key. Arrow keys and Space also work when the Strat
 
 ```
 main.js          Electron main process: window, hotkeys, strat files
+.github/         GitHub Actions: builds the Mac and Windows apps when a v* tag is pushed
 preload.js       Bridge between the window and the main process
 renderer/        The overlay UI (HTML, CSS, JS) and the AI prompt
 docs/            Strat file format
 ```
+
+## Making a release
+
+1. Bump `version` in `package.json`.
+2. Commit, then tag and push: `git tag v0.2.0 && git push origin v0.2.0`.
+3. GitHub Actions builds the Mac `.dmg`/`.zip` and Windows `.exe` files and attaches them to a Release.
