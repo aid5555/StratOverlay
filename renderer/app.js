@@ -180,6 +180,13 @@ function setMap(show) {
 
 function applyOpacity(v) { document.documentElement.style.setProperty('--alpha', v / 100); }
 
+// Show each hotkey on its button (⌥ = Option on Mac, Alt on Windows).
+const isMac = navigator.platform.toUpperCase().includes('MAC');
+const hotkey = (k) => (isMac ? '⌥' : 'Alt+') + k;
+for (const [id, k] of [['prevBtn', '←'], ['nextBtn', '→'], ['modeBtn', 'O'], ['collapseBtn', 'C'], ['restartBtn', '↑'], ['showMapLabel', 'M']]) {
+  $(id).dataset.key = hotkey(k);
+}
+
 $('nextBtn').onclick = () => go('next');
 $('prevBtn').onclick = () => go('prev');
 $('restartBtn').onclick = () => go('first');

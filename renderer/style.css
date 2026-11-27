@@ -132,3 +132,14 @@ body.adding #players, body.adding #meta, body.adding #main, body.adding #notesBo
 .addAlt button { margin: 4px 4px 0 0; }
 body.overlay #addScreen textarea { cursor: text; }
 #addBtn.active { background: #4dabf7; border-color: #4dabf7; color: #111; font-weight: 700; }
+
+/* Hotkey badges on buttons */
+[data-key]::after {
+  content: attr(data-key);
+  display: inline-block; margin-left: 6px; padding: 0 4px; border-radius: 4px;
+  font-size: 10px; font-weight: 600; line-height: 16px; vertical-align: middle;
+  background: rgba(255,255,255,0.12); color: var(--muted);
+}
+button.primary[data-key]::after { background: rgba(0,0,0,0.18); color: #3a2a00; }
+#addBtn.active[data-key]::after, #players button.active::after { color: #111; }
+body.collapsed [data-key]::after { font-size: 9px; }
