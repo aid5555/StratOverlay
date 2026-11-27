@@ -39,12 +39,25 @@ function toggleCollapse() {
   if (mode !== 'overlay') return;
   collapsed = !collapsed;
   setModeUI({ mode, collapsed });
-  // Measure how tall the small bar is so the window can shrink to fit it.
-  const panel = $('panel');
-  panel.style.height = 'auto';
-  const barHeight = Math.ceil(panel.getBoundingClientRect().height) + 2;
-  panel.style.height = '';
-  window.bridge.setCollapsed(collapsed, collapsed ? barHeight : null);
+  if (collapsed) fitCollapsed(true);
+  else window.bridge.setCollapsed(false, null);
+}
+
+// Measure how tall the collapsed bar needs to be for the current step, so a step that
+// wraps onto 2 or 3 lines makes the bar taller (and a short one makes it shorter again).
+let lastBarHeight = 0;
+function fitCollapsed(force = false) {
+  if (!collapsed || mode !== 'overlay') return;
+  requestAnimationFrame(() => {
+    const panel = $('panel');
+    panel.style.height = 'auto';
+    const barHeight = Math.ceil(panel.getBoundingClientRect().height) + 2;
+    panel.style.height = '';
+    if (force || barHeight !== lastBarHeight) {
+      lastBarHeight = barHeight;
+      window.bridge.setCollapsed(true, barHeight);
+    }
+  });
 }
 
 let strats = [];
@@ -214,6 +227,7 @@ function render() {
 
   settings.progress = { ...(settings.progress || {}), [progressKey()]: step };
   window.bridge.saveSettings({ progress: settings.progress });
+  fitCollapsed();
 }
 
 function go(action) {
@@ -320,6 +334,7 @@ document.addEventListener('keydown', (e) => {
 })();
 
 window.bridge.onHotkey(go);
-window.bridge.onMode(setModeUI);
+window.bridge.onMode((info) => { setModeUI(info); fitCollapsed(true); });
+window.addEventListener('resize', () => fitCollapsed());
 
 init();
