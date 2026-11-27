@@ -69,7 +69,7 @@ On Mac, Alt is the **Option** key. Arrow keys and Space also work when the Strat
 
 ```
 main.js          Electron main process: window, hotkeys, strat files
-.github/         GitHub Actions: builds the Mac and Windows apps when a v* tag is pushed
+.github/         GitHub Actions: builds the Mac and Windows apps when the version changes
 preload.js       Bridge between the window and the main process
 renderer/        The overlay UI (HTML, CSS, JS) and the AI prompt
 docs/            Strat file format
@@ -77,6 +77,6 @@ docs/            Strat file format
 
 ## Making a release
 
-1. Bump `version` in `package.json`.
-2. Commit, then tag and push: `git tag v0.2.0 && git push origin v0.2.0`.
-3. GitHub Actions builds the Mac `.dmg`/`.zip` and Windows `.exe` files and attaches them to a Release.
+1. Bump `version` in `package.json` and push it to `main`.
+2. GitHub Actions builds the Mac `.dmg`/`.zip` and Windows `.exe` files and publishes them as Release `v<version>`.
+   (You can also run the *Build and release* workflow by hand from the Actions tab.)
