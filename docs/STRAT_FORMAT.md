@@ -36,6 +36,28 @@ A strat is one `.json` file. The app keeps your strats in its own folder (use **
 | `placementMap` | no | Path to the map image, relative to the strat file |
 | `mode`, `map`, `difficulty` | no | Shown under the strat name |
 
+## Variants (choices)
+
+Some strats let you pick between towers, like *DJ Booth or Commander*. Add `choices`, and the app shows a picker for each one.
+
+```json
+{
+  "choices": [
+    { "id": "support", "label": "Support", "options": ["DJ Booth", "Commander"] }
+  ],
+  "loadout": [ { "tower": "Support", "choice": "support" } ],
+  "steps": [
+    { "text": "Place a {support}", "towers": ["Support"] },
+    { "text": "Place 3 Lv 2 Commanders", "towers": ["Support"], "if": { "support": "Commander" } },
+    { "text": "Max the DJ Booth", "towers": ["Support"], "if": { "support": "DJ Booth" } }
+  ]
+}
+```
+
+- `{id}` in `text`, `tip` or `notes` is replaced with the picked option.
+- A step with `if` only shows when every listed choice matches.
+- A loadout slot with `choice` shows the picked tower's name.
+
 ## Multiplayer strat
 
 Leave out the top-level `loadout`, `steps` and `placementMap`, and add a `players` list. The app then shows a Player 1 / Player 2 / ... picker.
@@ -79,6 +101,10 @@ Rules:
 - "towers" lists which loadout towers the step is about, spelled exactly like the "tower" names in the loadout.
 - "wave" is optional: only add it when the strat says which wave(s) the step happens on.
 - Put advice (targeting, abilities, DJ track, where on the map) in "tip", not in "text".
+- If the strat offers alternatives (e.g. "DJ / Commander", "Sabo / Engi", "A ⇆ B"), add
+  "choices": [ { "id": "support", "label": "Support", "options": ["DJ Booth", "Commander"] } ],
+  give that loadout slot "choice": "support", write {support} in text where the picked tower goes,
+  and give steps that only apply to one option "if": { "support": "Commander" }.
 - If the strat has a separate plan per player, leave out the top-level "loadout" and "steps" and use
   "players": [ { "name": "Player 1", "loadout": [...], "steps": [...] }, ... ] instead.
 - Keep tower names and level numbers exactly as in the strat. Don't invent steps.

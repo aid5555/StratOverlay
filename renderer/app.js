@@ -52,6 +52,7 @@ let strat = null;
 let currentFile = null;
 let rawStrat = null;
 let player = null;
+let baseStrat = null;
 const progressKey = () => player === null ? currentFile : `${currentFile}#${player}`;
 let step = 0;
 let settings = {};
@@ -108,12 +109,64 @@ async function openStrat(file) {
 
 function choosePlayer(index) {
   player = index;
-  strat = index === null ? rawStrat : { ...rawStrat, ...rawStrat.players[index] };
+  baseStrat = index === null ? rawStrat : { ...rawStrat, ...rawStrat.players[index] };
   [...$('players').children].forEach((b, i) => b.classList.toggle('active', i === index));
   if (index !== null) {
     settings.players = { ...(settings.players || {}), [currentFile]: index };
     window.bridge.saveSettings({ players: settings.players });
   }
+  applyChoices();
+}
+
+// ---- Variants: a strat can offer choices like "DJ Booth or Commander" ----
+// Steps with "if": {"support": "DJ Booth"} only show for that pick, and "{support}" in text becomes the pick.
+function pickedChoices() {
+  const saved = (settings.choices || {})[currentFile] || {};
+  const picked = {};
+  for (const c of baseStrat.choices || []) picked[c.id] = c.options.includes(saved[c.id]) ? saved[c.id] : c.options[0];
+  return picked;
+}
+
+function setChoice(id, value) {
+  const all = settings.choices || {};
+  settings.choices = { ...all, [currentFile]: { ...(all[currentFile] || {}), [id]: value } };
+  window.bridge.saveSettings({ choices: settings.choices });
+  applyChoices();
+}
+
+function applyChoices() {
+  const picked = pickedChoices();
+  const sub = (t) => t && t.replace(/\{([\w-]+)\}/g, (m, id) => picked[id] ?? m);
+  const fits = (s) => !s.if || Object.entries(s.if).every(([id, v]) => picked[id] === v);
+  const choices = baseStrat.choices || [];
+  strat = {
+    ...baseStrat,
+    steps: baseStrat.steps.filter(fits).map(s => ({ ...s, text: sub(s.text), tip: sub(s.tip) })),
+    loadout: (baseStrat.loadout || []).map(t => {
+      const c = t.choice && choices.find(c => c.id === t.choice);
+      return c ? { ...t, label: picked[c.id], options: c.options } : t;
+    }),
+    notes: (baseStrat.notes || []).map(sub),
+  };
+
+  $('choices').innerHTML = '';
+  $('choices').style.display = choices.length ? '' : 'none';
+  for (const c of choices) {
+    const row = document.createElement('div');
+    row.className = 'choiceRow';
+    const label = document.createElement('span');
+    label.textContent = c.label || c.id;
+    row.appendChild(label);
+    for (const o of c.options) {
+      const b = document.createElement('button');
+      b.textContent = o;
+      b.classList.toggle('active', picked[c.id] === o);
+      b.onclick = () => setChoice(c.id, o);
+      row.appendChild(b);
+    }
+    $('choices').appendChild(row);
+  }
+
   const saved = (settings.progress || {})[progressKey()];
   step = Math.min(saved ?? 0, strat.steps.length - 1);
 
@@ -154,7 +207,7 @@ function render() {
     const chip = document.createElement('span');
     chip.className = 'chip' + (active.has(t.tower) ? ' active' : '');
     chip.style.setProperty('--c', towerColor[t.tower]);
-    chip.textContent = t.tower;
+    chip.textContent = t.label || t.tower;
     if (t.options) chip.title = 'Options: ' + t.options.join(', ');
     $('loadout').appendChild(chip);
   }

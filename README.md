@@ -5,7 +5,7 @@ A small overlay for **Roblox Tower Defense Simulator** that shows your strategy 
 - See-through, always-on-top overlay you can drag anywhere, or **Fullscreen** mode on a second screen
 - **Next / Previous** with hotkeys that work while Roblox is focused
 - Placement map, tower loadout with the current step's towers highlighted, tips and notes
-- Multiplayer strats with a **Player 1 / 2 / 3** picker
+- Multiplayer strats with a **Player 1 / 2 / 3** picker, and variant pickers (e.g. DJ or Commander)
 - Collapse it to a small bar when you only need the current step
 - Remembers which step you're on for every strat
 
