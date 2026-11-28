@@ -382,7 +382,9 @@ document.addEventListener('keydown', (e) => {
 })();
 
 window.bridge.onHotkey(go);
-window.bridge.onMode((info) => { setModeUI(info); fitCollapsed(true); });
+// No forced refit here: the main process answers every resize with a 'mode' message,
+// so forcing it would loop and keep re-collapsing the window.
+window.bridge.onMode((info) => { setModeUI(info); fitCollapsed(); });
 window.addEventListener('resize', () => fitCollapsed());
 
 init();
