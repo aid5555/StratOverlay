@@ -180,7 +180,7 @@ ipcMain.handle('import-strat', async () => {
 ipcMain.handle('switch-mode', () => switchMode());
 
 // Save a strat pasted as text (usually JSON from an AI), with an optional map image.
-ipcMain.handle('save-strat-text', (_e, text, mapPath) => {
+ipcMain.handle('save-strat-text', (_e, text, mapPath, mapBytes) => {
   let strat;
   try {
     // AIs often wrap JSON in ```json fences; strip them and anything around the outer { }.
@@ -201,7 +201,11 @@ ipcMain.handle('save-strat-text', (_e, text, mapPath) => {
   const slug = (strat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'strat').slice(0, 50);
   let base = slug, n = 2;
   while (fs.existsSync(path.join(dir, base + '.json'))) base = `${slug}-${n++}`;
-  if (mapPath && fs.existsSync(mapPath)) {
+  if (mapBytes && mapBytes.length) {
+    const rel = `maps/${base}.png`;
+    fs.writeFileSync(path.join(dir, rel), Buffer.from(mapBytes));
+    strat.placementMap = rel;
+  } else if (mapPath && fs.existsSync(mapPath)) {
     const rel = `maps/${base}${path.extname(mapPath).toLowerCase() || '.png'}`;
     fs.copyFileSync(mapPath, path.join(dir, rel));
     strat.placementMap = rel;
@@ -220,6 +224,32 @@ ipcMain.handle('pick-map', async () => {
   return res.canceled ? null : res.filePaths[0];
 });
 ipcMain.handle('copy-text', (_e, text) => clipboard.writeText(String(text)));
+
+// The image on the clipboard as PNG bytes (or null), for the "Paste image" buttons.
+ipcMain.handle('read-clipboard-image', () => {
+  const img = clipboard.readImage();
+  return img.isEmpty() ? null : img.toPNG();
+});
+
+// Replace the placement map of a saved strat (or of one player in a multiplayer strat).
+ipcMain.handle('set-strat-map', (_e, file, playerIndex, bytes) => {
+  try {
+    const strat = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const base = path.basename(file, '.json') + (playerIndex === null ? '' : `-p${playerIndex + 1}`);
+    const rel = `maps/${base}-${Date.now()}.png`;
+    fs.mkdirSync(path.join(path.dirname(file), 'maps'), { recursive: true });
+    fs.writeFileSync(path.join(path.dirname(file), rel), Buffer.from(bytes));
+    const target = playerIndex === null ? strat : strat.players[playerIndex];
+    const old = target.placementMap;
+    target.placementMap = rel;
+    fs.writeFileSync(file, JSON.stringify(strat, null, 2));
+    // Remove the old pasted map if it was one of ours (keeps the maps folder tidy).
+    if (old && /-\d{13}\.png$/.test(old)) fs.rmSync(path.join(path.dirname(file), old), { force: true });
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: 'Could not save the map: ' + e.message };
+  }
+});
 ipcMain.handle('open-strats-folder', () => {
   fs.mkdirSync(userStratsDir(), { recursive: true });
   return shell.openPath(userStratsDir());

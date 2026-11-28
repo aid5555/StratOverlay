@@ -153,3 +153,17 @@ body.collapsed [data-key]::after { font-size: 9px; }
 body.collapsed #choices, body.adding #choices { display: none !important; }
 
 #stepText, #stepTip { overflow-wrap: anywhere; min-width: 0; }
+
+/* Pasting map images */
+.mapBtns { display: flex; gap: 6px; margin-top: 6px; }
+#addScreen li .mapBtns button { display: inline-block; margin-top: 0; }
+#mapPreview { display: none; max-width: 100%; max-height: 120px; margin-top: 6px; border-radius: 6px; }
+#noMap b { color: var(--accent); }
+#toast {
+  display: none; position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+  padding: 6px 12px; border-radius: 99px; font-size: 13px; font-weight: 600; z-index: 10;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+}
+#toast.show { display: block; }
+#toast.ok { background: #51cf66; color: #111; }
+#toast.bad { background: #ff6b6b; color: #111; }

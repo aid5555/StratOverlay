@@ -286,14 +286,62 @@ $('copyPromptBtn').onclick = async () => {
 };
 $('pickMapBtn').onclick = async () => {
   const file = await window.bridge.pickMap();
-  if (file) { pickedMap = file; $('mapName').textContent = file.split(/[\\/]/).pop(); }
+  if (file) { pickedMap = file; pickedMapBytes = null; showPickedMap(file.split(/[\\/]/).pop(), 'file://' + file.replace(/\\/g, '/')); }
+};
+$('pasteMapBtn').onclick = async () => {
+  const bytes = await window.bridge.readClipboardImage();
+  if (!bytes) return addMessage('There is no image on your clipboard. Copy a screenshot of the map first.', false);
+  usePastedMap(bytes);
 };
 $('saveStratBtn').onclick = async () => {
-  const res = await window.bridge.saveStratText($('stratJson').value, pickedMap);
+  const res = await window.bridge.saveStratText($('stratJson').value, pickedMap, pickedMapBytes);
   if (!res.ok) return addMessage(res.error, false);
-  $('stratJson').value = ''; pickedMap = null; $('mapName').textContent = '';
+  $('stratJson').value = ''; pickedMap = null; pickedMapBytes = null; showPickedMap('', '');
   await refreshList(res.file);
 };
+
+// ---- Pasting map images ----
+let pickedMapBytes = null;
+function showPickedMap(name, src) {
+  $('mapName').textContent = name ? '✓ ' + name : '';
+  $('mapPreview').src = src || '';
+  $('mapPreview').style.display = src ? 'block' : 'none';
+}
+function usePastedMap(bytes) {
+  pickedMapBytes = bytes; pickedMap = null;
+  showPickedMap('Pasted image', URL.createObjectURL(new Blob([bytes], { type: 'image/png' })));
+}
+async function replaceCurrentMap(bytes) {
+  if (!strat || !currentFile) return;
+  const res = await window.bridge.setStratMap(currentFile, player, bytes);
+  if (!res.ok) return toast(res.error, false);
+  const keepPlayer = player;
+  rawStrat = await window.bridge.load(currentFile);
+  choosePlayer(keepPlayer);
+  toast(keepPlayer === null ? 'Placement map updated' : `Map updated for ${strat.name || 'this player'}`, true);
+}
+let toastTimer = null;
+function toast(text, ok) {
+  $('toast').textContent = text; $('toast').className = 'show ' + (ok ? 'ok' : 'bad');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').className = ''; }, 2500);
+}
+$('replaceMapBtn').onclick = async () => {
+  const bytes = await window.bridge.readClipboardImage();
+  if (!bytes) return toast('There is no image on your clipboard. Copy a screenshot of the map first.', false);
+  replaceCurrentMap(bytes);
+};
+// ⌘V / Ctrl+V with an image: on the add screen it becomes the new strat's map,
+// otherwise it replaces the map of the strat (or player) you're looking at.
+document.addEventListener('paste', async (e) => {
+  const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+  if (!item) return; // plain text pastes (like the JSON) work as normal
+  e.preventDefault();
+  const blob = item.getAsFile();
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  if (document.body.classList.contains('adding')) usePastedMap(bytes);
+  else replaceCurrentMap(bytes);
+});
+
 $('importBtn').onclick = async () => {
   try {
     const file = await window.bridge.importFile();
