@@ -167,3 +167,6 @@ body.collapsed #choices, body.adding #choices { display: none !important; }
 #toast.show { display: block; }
 #toast.ok { background: #51cf66; color: #111; }
 #toast.bad { background: #ff6b6b; color: #111; }
+#settingsBox button { display: block; margin: 6px 0; }
+button.danger { border-color: #ff6b6b; color: #ff8787; }
+button.danger:hover { background: #ff6b6b; color: #111; }

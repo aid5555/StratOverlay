@@ -325,6 +325,18 @@ function toast(text, ok) {
   $('toast').textContent = text; $('toast').className = 'show ' + (ok ? 'ok' : 'bad');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').className = ''; }, 2500);
 }
+$('deleteStratBtn').onclick = async () => {
+  if (!currentFile) return;
+  const res = await window.bridge.deleteStrat(currentFile);
+  if (res.cancelled) return;
+  if (!res.ok) return toast(res.error, false);
+  const progress = { ...(settings.progress || {}) };
+  for (const k of Object.keys(progress)) if (k === currentFile || k.startsWith(currentFile + '#')) delete progress[k];
+  settings.progress = progress;
+  window.bridge.saveSettings({ progress });
+  await refreshList(null);
+  toast('Strat removed (it is in the Trash)', true);
+};
 $('replaceMapBtn').onclick = async () => {
   const bytes = await window.bridge.readClipboardImage();
   if (!bytes) return toast('There is no image on your clipboard. Copy a screenshot of the map first.', false);

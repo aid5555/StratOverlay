@@ -48,6 +48,8 @@ The app ships without strats. On first launch it shows a screen to add one (you 
 2. Paste the strat text from the strat doc under the prompt and send it.
 3. Paste the AI's answer into the app, paste a screenshot of the placement map (⌘V / Ctrl+V) or choose an image file, and press **Save strat**.
 
+To remove a strat, open it and use **Remove this strat** under Settings (it goes to the Trash, so you can get it back).
+
 To add or replace the map of a strat you already have, copy a screenshot and press ⌘V / Ctrl+V while it's open. In multiplayer strats this sets the map for the selected player.
 
 You can also import a `.json` strat file, or drop files into the strats folder (**Open strats folder** in the app). The file format is described in [docs/STRAT_FORMAT.md](docs/STRAT_FORMAT.md).

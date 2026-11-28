@@ -1,6 +1,6 @@
 {
   "name": "stratoverlay",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Step-by-step strategy overlay for Roblox Tower Defense Simulator",
   "main": "main.js",
   "scripts": {

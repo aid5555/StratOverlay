@@ -226,6 +226,38 @@ ipcMain.handle('pick-map', async () => {
 ipcMain.handle('copy-text', (_e, text) => clipboard.writeText(String(text)));
 
 // The image on the clipboard as PNG bytes (or null), for the "Paste image" buttons.
+// Remove a strat (after asking). It goes to the Trash/Recycle Bin, with its map images,
+// so it can still be recovered from there.
+ipcMain.handle('delete-strat', async (_e, file) => {
+  let strat = {};
+  try { strat = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
+  const { response } = await dialog.showMessageBox(win, {
+    type: 'warning',
+    buttons: ['Remove', 'Cancel'],
+    defaultId: 1,
+    cancelId: 1,
+    message: `Remove "${strat.name || path.basename(file)}"?`,
+    detail: 'The strat and its map images go to the Trash, so you can still get them back from there.',
+  });
+  if (response !== 0) return { ok: false, cancelled: true };
+  const dir = path.dirname(file);
+  const maps = [strat.placementMap, ...(strat.players || []).map(p => p.placementMap)].filter(Boolean);
+  try {
+    await shell.trashItem(file);
+    for (const rel of maps) {
+      const p = path.resolve(dir, rel);
+      // Only remove maps no other strat in this folder still uses.
+      const usedElsewhere = fs.readdirSync(dir).filter(f => f.endsWith('.json')).some(f => {
+        try { return fs.readFileSync(path.join(dir, f), 'utf8').includes(rel); } catch { return false; }
+      });
+      if (!usedElsewhere && p.startsWith(dir) && fs.existsSync(p)) await shell.trashItem(p);
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: 'Could not remove it: ' + e.message };
+  }
+});
+
 ipcMain.handle('read-clipboard-image', () => {
   const img = clipboard.readImage();
   return img.isEmpty() ? null : img.toPNG();
@@ -258,22 +290,30 @@ ipcMain.on('move-by', (_e, dx, dy) => {
   if (!win || mode !== 'overlay') return;
   const [x, y] = win.getPosition();
   win.setPosition(Math.round(x + dx), Math.round(y + dy));
+  snapSoon();
 });
-// When you let go near a screen edge (or corner), the overlay snaps flush against it.
+// When you let go near a screen edge (or past it), the overlay snaps flush against it.
 const SNAP_DISTANCE = 40;
 function snapToEdges() {
+  if (!win || win.isDestroyed() || mode !== 'overlay') return;
   const b = win.getBounds();
   const area = screen.getDisplayMatching(b).workArea;
+  const right = area.x + area.width, bottom = area.y + area.height;
   let { x, y } = b;
-  if (Math.abs(b.x - area.x) < SNAP_DISTANCE) x = area.x;
-  else if (Math.abs(area.x + area.width - (b.x + b.width)) < SNAP_DISTANCE) x = area.x + area.width - b.width;
-  if (Math.abs(b.y - area.y) < SNAP_DISTANCE) y = area.y;
-  else if (Math.abs(area.y + area.height - (b.y + b.height)) < SNAP_DISTANCE) y = area.y + area.height - b.height;
+  // "Near" includes being dragged partly off the screen.
+  if (b.x < area.x + SNAP_DISTANCE) x = area.x;
+  else if (b.x + b.width > right - SNAP_DISTANCE) x = right - b.width;
+  if (b.y < area.y + SNAP_DISTANCE) y = area.y;
+  else if (b.y + b.height > bottom - SNAP_DISTANCE) y = bottom - b.height;
   if (x !== b.x || y !== b.y) win.setPosition(x, y);
 }
+// Backup in case the "mouse released" message never arrives: snap shortly after the last move.
+let snapTimer = null;
+function snapSoon() { clearTimeout(snapTimer); snapTimer = setTimeout(snapToEdges, 300); }
 
 ipcMain.on('move-done', () => {
   if (!win || mode !== 'overlay') return;
+  clearTimeout(snapTimer);
   snapToEdges();
   const b = win.getBounds();
   const prev = loadSettings().overlayBounds || b;

@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('bridge', {
   moveBy: (dx, dy) => ipcRenderer.send('move-by', dx, dy),
   moveDone: () => ipcRenderer.send('move-done'),
   saveStratText: (text, mapPath, mapBytes) => ipcRenderer.invoke('save-strat-text', text, mapPath, mapBytes),
+  deleteStrat: (file) => ipcRenderer.invoke('delete-strat', file),
   readClipboardImage: () => ipcRenderer.invoke('read-clipboard-image'),
   setStratMap: (file, playerIndex, bytes) => ipcRenderer.invoke('set-strat-map', file, playerIndex, bytes),
   pickMap: () => ipcRenderer.invoke('pick-map'),
