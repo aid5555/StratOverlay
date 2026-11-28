@@ -35,6 +35,8 @@ A strat is one `.json` file. The app keeps your strats in its own folder (use **
 | `notes` | no | General rules, shown under the steps |
 | `placementMap` | no | Path to the map image, relative to the strat file |
 | `mode`, `map`, `difficulty` | no | Shown under the strat name |
+| `source` | no | Link to the strat doc. Shown as a clickable "Strat doc" link (and editable in Settings) |
+| `video` | no | Link to a video of the strat. Shown as a clickable "Video" link. Players can have their own `video` |
 
 ## Variants (choices)
 

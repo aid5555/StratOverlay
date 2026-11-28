@@ -50,6 +50,8 @@ The app ships without strats. On first launch it shows a screen to add one (you 
 
 To remove a strat, open it and use **Remove this strat** under Settings (it goes to the Trash, so you can get it back).
 
+Each strat can keep a link to its strat doc (and video). They show as **📄 Strat doc** and **▶ Video** under the strat name and open in your browser. Add the link when you save a strat, or set or change it under Settings → **Strat link**.
+
 To add or replace the map of a strat you already have, copy a screenshot and press ⌘V / Ctrl+V while it's open. In multiplayer strats this sets the map for the selected player.
 
 You can also import a `.json` strat file, or drop files into the strats folder (**Open strats folder** in the app). The file format is described in [docs/STRAT_FORMAT.md](docs/STRAT_FORMAT.md).

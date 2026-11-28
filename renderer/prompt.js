@@ -9,6 +9,8 @@ Format:
   "mode": "Gamemode, e.g. Fallen",
   "map": "Map name",
   "difficulty": "Easy / Medium / Hard (if given)",
+  "source": "Link to the strat doc, if you have it",
+  "video": "Link to the strat video, if the strat gives one",
   "notes": ["General rules and tips that apply to the whole game"],
   "loadout": [ { "tower": "Assassin" }, { "tower": "DPS", "options": ["Juggernaut (bottom path)", "Turret"] } ],
   "steps": [

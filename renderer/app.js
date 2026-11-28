@@ -184,6 +184,7 @@ function applyChoices() {
   step = Math.min(saved ?? 0, strat.steps.length - 1);
 
   $('meta').textContent = [strat.mode, strat.map, strat.difficulty].filter(Boolean).join(' · ');
+  renderLinks();
   if (strat.placementMapUrl) {
     $('map').src = strat.placementMapUrl; $('map').style.display = ''; $('noMap').style.display = 'none';
   } else {
@@ -203,6 +204,22 @@ function applyChoices() {
     $('notes').appendChild(li);
   });
   render();
+}
+
+// Clickable links to the strat doc and video (a player's own video wins over the strat's).
+function renderLinks() {
+  const links = [];
+  if (strat.source) links.push(['📄 Strat doc', strat.source]);
+  if (strat.video) links.push(['▶ Video', strat.video]);
+  $('links').innerHTML = '';
+  $('links').style.display = links.length ? '' : 'none';
+  for (const [label, url] of links) {
+    const a = document.createElement('a');
+    a.href = '#'; a.textContent = label; a.title = url;
+    a.onclick = (e) => { e.preventDefault(); window.bridge.openExternal(url); };
+    $('links').appendChild(a);
+  }
+  $('linkInput').value = rawStrat.source || '';
 }
 
 function render() {
@@ -294,9 +311,9 @@ $('pasteMapBtn').onclick = async () => {
   usePastedMap(bytes);
 };
 $('saveStratBtn').onclick = async () => {
-  const res = await window.bridge.saveStratText($('stratJson').value, pickedMap, pickedMapBytes);
+  const res = await window.bridge.saveStratText($('stratJson').value, pickedMap, pickedMapBytes, $('stratLink').value);
   if (!res.ok) return addMessage(res.error, false);
-  $('stratJson').value = ''; pickedMap = null; pickedMapBytes = null; showPickedMap('', '');
+  $('stratJson').value = ''; $('stratLink').value = ''; pickedMap = null; pickedMapBytes = null; showPickedMap('', '');
   await refreshList(res.file);
 };
 
@@ -337,6 +354,17 @@ $('deleteStratBtn').onclick = async () => {
   await refreshList(null);
   toast('Strat removed (it is in the Trash)', true);
 };
+$('saveLinkBtn').onclick = async () => {
+  if (!currentFile) return;
+  const res = await window.bridge.setStratLink(currentFile, $('linkInput').value);
+  if (!res.ok) return toast(res.error, false);
+  rawStrat.source = res.source || undefined;
+  baseStrat.source = rawStrat.source; strat.source = rawStrat.source;
+  renderLinks();
+  fitCollapsed();
+  toast(res.source ? 'Strat link saved' : 'Strat link removed', true);
+};
+$('linkInput').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); $('saveLinkBtn').click(); } };
 $('replaceMapBtn').onclick = async () => {
   const bytes = await window.bridge.readClipboardImage();
   if (!bytes) return toast('There is no image on your clipboard. Copy a screenshot of the map first.', false);

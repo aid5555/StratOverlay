@@ -180,7 +180,7 @@ ipcMain.handle('import-strat', async () => {
 ipcMain.handle('switch-mode', () => switchMode());
 
 // Save a strat pasted as text (usually JSON from an AI), with an optional map image.
-ipcMain.handle('save-strat-text', (_e, text, mapPath, mapBytes) => {
+ipcMain.handle('save-strat-text', (_e, text, mapPath, mapBytes, link) => {
   let strat;
   try {
     // AIs often wrap JSON in ```json fences; strip them and anything around the outer { }.
@@ -195,6 +195,7 @@ ipcMain.handle('save-strat-text', (_e, text, mapPath, mapBytes) => {
   if (!hasSteps && !hasPlayers) return { ok: false, error: 'The strat has no steps. Ask the AI to follow the format exactly.' };
   strat.formatVersion = strat.formatVersion || 1;
   strat.name = strat.name || 'New strat';
+  if (cleanLink(link)) strat.source = cleanLink(link);
 
   const dir = userStratsDir();
   fs.mkdirSync(path.join(dir, 'maps'), { recursive: true });
@@ -280,6 +281,30 @@ ipcMain.handle('set-strat-map', (_e, file, playerIndex, bytes) => {
     return { ok: true };
   } catch (e) {
     return { ok: false, error: 'Could not save the map: ' + e.message };
+  }
+});
+// Strat links (the doc or video the strat came from) open in the normal browser.
+function cleanLink(url) {
+  const u = String(url || '').trim();
+  if (!u) return '';
+  const withScheme = /^[a-z]+:\/\//i.test(u) ? u : 'https://' + u;
+  try { const p = new URL(withScheme); return /^https?:$/.test(p.protocol) ? p.href : null; } catch { return null; }
+}
+ipcMain.handle('open-external', (_e, url) => {
+  const u = cleanLink(url);
+  if (u) shell.openExternal(u);
+});
+// Set or clear the strat link of a saved strat.
+ipcMain.handle('set-strat-link', (_e, file, url) => {
+  const u = cleanLink(url);
+  if (u === null) return { ok: false, error: "That doesn't look like a web link." };
+  try {
+    const strat = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (u) strat.source = u; else delete strat.source;
+    fs.writeFileSync(file, JSON.stringify(strat, null, 2));
+    return { ok: true, source: u };
+  } catch (e) {
+    return { ok: false, error: 'Could not save the link: ' + e.message };
   }
 });
 ipcMain.handle('open-strats-folder', () => {

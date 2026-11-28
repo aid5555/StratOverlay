@@ -27,6 +27,8 @@
         <li><b>Placement map</b> (optional): copy a screenshot of the map and press ⌘V / Ctrl+V, or choose a file.
           <span class="mapBtns"><button id="pasteMapBtn">📋 Paste image</button><button id="pickMapBtn">🗺️ Choose file</button></span>
           <span id="mapName"></span> <img id="mapPreview" alt=""></li>
+        <li><b>Strat link</b> (optional): the strat doc or video, so you can open it from the overlay.
+          <input id="stratLink" type="url" spellcheck="false" placeholder="https://docs.google.com/..."></li>
       </ol>
       <div class="addActions">
         <button id="saveStratBtn" class="primary">Save strat</button>
@@ -39,6 +41,7 @@
     <div id="players"></div>
     <div id="choices"></div>
     <div id="meta"></div>
+    <div id="links"></div>
 
     <div id="toast"></div>
     <div id="main">
@@ -72,6 +75,7 @@
       <label id="showMapLabel"><input id="showMap" type="checkbox" checked> Show map</label>
       <button id="restartBtn">Restart strat</button>
       <button id="replaceMapBtn">📋 Paste new map from clipboard</button>
+      <label class="linkRow">🔗 Strat link <input id="linkInput" type="url" spellcheck="false" placeholder="https://..."><button id="saveLinkBtn">Save</button></label>
       <button id="deleteStratBtn" class="danger">🗑️ Remove this strat</button>
       <p class="keys">Alt+→ next · Alt+← back · Alt+H hide · Alt+O overlay / fullscreen · Alt+C collapse · Esc leaves fullscreen<br>(Option instead of Alt on Mac)</p>
     </details>
